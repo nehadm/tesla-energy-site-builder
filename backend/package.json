@@ -1,0 +1,14 @@
+{
+  "name": "tesla-energy-site-builder-backend",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "@types/cors": "^2.8.19",
+    "cors": "^2.8.6",
+    "express": "^4.22.1"
+  }
+}

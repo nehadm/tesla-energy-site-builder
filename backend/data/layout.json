@@ -1,0 +1,15 @@
+{
+  "meta": {
+    "siteName": "Tesla Energy Layout",
+    "updatedAt": "2026-04-01T00:00:00.000Z"
+  },
+  "devices": [
+    {
+      "id": "powerwall-1",
+      "type": "Powerwall",
+      "x": 8,
+      "y": 3,
+      "quantity": 2
+    }
+  ]
+}

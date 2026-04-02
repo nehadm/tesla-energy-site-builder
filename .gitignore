@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+dist/
+build/
+
+# Production
+.DS_Store
+*.log
+
+# Local Data (Requirement: Data stays on the local server)
+backend/data/siteConfig.json
+
+# Environment
+.env
+.env.local
+
+# Editor folders
+.vscode/
+.idea/

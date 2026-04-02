@@ -1,0 +1,15 @@
+{
+  "name": "tesla-energy-site-builder-root",
+  "version": "1.0.0",
+  "description": "Tesla Energy UI Application - Industrial Energy Battery site Builder",
+  "main": "index.js",
+
+  "scripts": {
+    "start": "concurrently \"npm run server\" \"npm run client\"",
+    "server": "cd backend && node server.js",
+    "client": "cd frontend && PORT=8000 npm start"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}
