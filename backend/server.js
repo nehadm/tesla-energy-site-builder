@@ -8,13 +8,18 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 5001;
+const PORT = process.env.PORT || 5001;
 const DATA_DIR = path.join(__dirname, 'data');
 const DATA_FILE = path.join(DATA_DIR, 'siteConfig.json');
+const FRONTEND_BUILD_DIR = path.join(__dirname, '..', 'frontend', 'build');
 
 
 app.use(cors({
-  origin: 'http://localhost:8000',
+  origin: [
+    'http://localhost:8000',
+    'http://localhost:5001',
+    'https://tesla-energy-site-builder.onrender.com',
+  ],
   methods: ['GET', 'POST'],
   allowedHeaders: ['Content-Type']
 }));
@@ -73,6 +78,22 @@ app.get('/api/layout', (req, res) => {
         res.status(500).json({ error: 'Server error' });
     }
 });
+
+// Serve React build from frontend
+if (fs.existsSync(FRONTEND_BUILD_DIR)) {
+  app.use(express.static(FRONTEND_BUILD_DIR));
+
+  app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+      return res.status(404).json({ error: 'API endpoint not found' });
+    }
+
+    res.sendFile(path.join(FRONTEND_BUILD_DIR, 'index.html'));
+  });
+} else {
+  console.warn('Frontend build folder not found at', FRONTEND_BUILD_DIR);
+}
+
 
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`Tesla Energy Server running at http://localhost:${PORT}`);
