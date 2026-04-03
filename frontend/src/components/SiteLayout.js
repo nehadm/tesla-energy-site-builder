@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Alert, Box, Chip, Paper, Stack, Tooltip, Typography } from '@mui/material';
 
 import BatteryIcon from './common/icons/BatteryCoolingIcon24';
+import EmptyState from './EmptyState';
 import SiteLayoutFooter from './SiteLayoutFooter';
 import TransformerIcon from './common/icons/TransformerIcon24';
 import { validateLayoutSpacing } from '../utils/spacingValidator';
@@ -153,6 +154,7 @@ export default function SiteLayout({ layout = [] }) {
             backgroundSize: `${10 * SCALE}px ${10 * SCALE}px`,
           }}
         >
+          {layout.length === 0 && <EmptyState /> }
           <Box
             sx={{
               position: "absolute",
