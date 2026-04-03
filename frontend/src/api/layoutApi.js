@@ -1,6 +1,8 @@
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5001';
+
 export const loadLayoutFromServer = async () => {
   try {
-    const response = await fetch('http://localhost:5001/api/layout', {
+    const response = await fetch(`${API_BASE_URL}/api/layout`, {
       method: 'GET',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -27,7 +29,7 @@ export const loadLayoutFromServer = async () => {
 
 export const saveLayoutToServer = async (quantities, layout) => {
   try {
-    const response = await fetch('http://localhost:5001/api/layout', {
+    const response = await fetch(`${API_BASE_URL}/api/layout`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ quantities, layout })
