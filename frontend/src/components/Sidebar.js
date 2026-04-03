@@ -1,15 +1,8 @@
-import React from "react";
-import {
-  Grid,
-  Typography,
-  Divider,
-  Box,
-  TextField,
-  Button,
-  CircularProgress,
-} from "@mui/material";
-import { DEVICES } from "../constants";
-import TeslaTextField from "./TeslaTextField";
+import React from 'react';
+import { Box, Button, CircularProgress, Divider, Grid, TextField, Typography } from '@mui/material';
+
+import TeslaTextField from './common/TeslaTextField';
+import { DEVICES } from '../constants';
 
 export default function Sidebar({
   quantities,
@@ -20,7 +13,7 @@ export default function Sidebar({
   status,
 }) {
   const handleQuantityChange = (type, value) => {
-    const parsedValue = Math.max(0, Number(value) || 0);
+    const parsedValue = Math.max(0, Math.min(500, Number(value) || 0));
     onChange(type, parsedValue);
   };
 
@@ -75,6 +68,7 @@ export default function Sidebar({
               : ""
           }
           min={0}
+          max={500}
         />
       ))}
       </Box>

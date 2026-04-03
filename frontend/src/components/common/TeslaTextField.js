@@ -1,5 +1,5 @@
-import React from "react";
-import { TextField } from "@mui/material";
+import React from 'react';
+import { TextField } from '@mui/material';
 
 export default function TeslaTextField({
   label,
@@ -31,7 +31,7 @@ export default function TeslaTextField({
       sx={{
         mt: 1.5,
         "& .MuiInputLabel-root": {
-          fontSize: "14px",
+          fontSize: "10px",
           lineHeight: 1.2,
           color: "#5c5e62",
           fontWeight: 500,

@@ -6,7 +6,6 @@ const calculateTotals = (quantities) => {
   let sqft = 0;
   let totalBatteries = 0;
 
-  // 1. Calculate totals for selected batteries
   Object.entries(quantities).forEach(([type, count]) => {
     const spec = DEVICES[type];
     if (spec && count > 0) {
@@ -17,16 +16,14 @@ const calculateTotals = (quantities) => {
     }
   });
 
-  // 2. Requirement: 1 transformer per 2 industrial batteries
   const transformersNeeded = Math.ceil(totalBatteries / 2);
   
-// 3. Add Transformer impact
 const transformerSpec = DEVICES.TRANSFORMER;
 if (transformerSpec) {
   cost += transformerSpec.cost * transformersNeeded;
-  energy += (transformerSpec.energy || 0) * transformersNeeded; 
-  sqft += (transformerSpec.width * transformerSpec.length) * transformersNeeded;
-}
+    energy += (transformerSpec.energy || 0) * transformersNeeded; 
+    sqft += (transformerSpec.width * transformerSpec.length) * transformersNeeded;
+  }
   return {
     cost,
     energy: Math.max(0, energy), // Ensure energy doesn't go negative

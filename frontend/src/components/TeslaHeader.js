@@ -1,5 +1,5 @@
-import React from "react";
-import { AppBar, Toolbar, Box, Typography, Link as MuiLink } from "@mui/material";
+import React from 'react';
+import { AppBar, Box, Link as MuiLink, Toolbar, Typography } from '@mui/material';
 
 const TeslaHeader = React.memo(function TeslaHeader({
   title = "Energy Site Builder",

@@ -1,13 +1,12 @@
-import React, { useMemo, useState, useEffect } from 'react';
-import { createTheme, ThemeProvider } from '@mui/material';
-import { Container, Grid, Divider, Box} from '@mui/material';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Box, Container, createTheme, Divider, ThemeProvider } from '@mui/material';
+
+import { loadLayoutFromServer, saveLayoutToServer } from './api/layoutApi';
+import Sidebar from './components/Sidebar';
 import SiteLayout from './components/SiteLayout';
 import SiteLayoutHeader from './components/SiteLayoutHeader';
 import SiteLayoutInfoCards from './components/SiteLayoutInfoCards';
-
 import TeslaHeader from './components/TeslaHeader';
-import Sidebar from './components/Sidebar';
-
 import { DEVICES } from './constants';
 import calculateTotals from './utils/calculateTotals';
 import generateLayout from './utils/generateLayout';
@@ -21,11 +20,27 @@ export default function App() {
   const [status, setStatus] = useState('Ready');
 
   useEffect(() => {
-    const saved = localStorage.getItem('tesla-energy-session');
-    if (saved) {
-      setQuantities(JSON.parse(saved));
-      setStatus('Session resumed from local storage.');
-    }
+    const loadData = async () => {
+      try {
+        const data = await loadLayoutFromServer();
+        if (data && data.quantities) {
+          setQuantities(data.quantities);
+          setStatus('Session loaded from server.');
+          localStorage.setItem('tesla-energy-session', JSON.stringify(data.quantities));
+        }
+      } catch (err) {
+        console.error('Failed to load from server, falling back to localStorage:', err.message);
+        const saved = localStorage.getItem('tesla-energy-session');
+        if (saved) {
+          setQuantities(JSON.parse(saved));
+          setStatus('Session resumed from local storage.');
+        } else {
+          setStatus('Starting fresh session.');
+        }
+      }
+    };
+    
+    loadData();
   }, []);
 
   const { totals, layout } = useMemo(() => {
@@ -55,24 +70,19 @@ export default function App() {
     setLoading(true);
     setStatus('Syncing with server...');
     
-    localStorage.setItem('tesla-energy-session', JSON.stringify(quantities));
+    try {
+      localStorage.setItem('tesla-energy-session', JSON.stringify(quantities));
+    } catch (storageErr) {
+      console.error('LocalStorage error:', storageErr);
+    }
 
     try {
-
-      const response = await fetch('http://localhost:5001/api/layout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantities, layout })
-      });
-
-      if (response.ok) {
-        setStatus('Configuration saved to server.');
-      } else {
-        throw new Error('Server sync failed');
-      }
+      await saveLayoutToServer(quantities, layout);
+      setStatus('Configuration saved to server.');
+      console.log('Save successful');
     } catch (err) {
-      console.error(err);
-      setStatus('Saved locally (Backend unreachable).');
+      console.error('Save error:', err.message);
+      setStatus(`Error: ${err.message}. Saved locally.`);
     } finally {
       setLoading(false);
     }
@@ -82,9 +92,10 @@ export default function App() {
     <ThemeProvider theme={theme}>
       <Box sx={{ flexGrow: 1, bgcolor: '#f5f5f5', minHeight: '100vh', pb: 4 }}>
         <TeslaHeader />
-        <Container maxWidth={false} sx={{ mt: 0, p: '0 !important' }}> 
-          <Grid container sx={{ minHeight: 'calc(100vh - 64px)' }}>
-            <Sidebar 
+  
+        <Container maxWidth={false} disableGutters>
+          <Box sx={{ display: 'flex', minHeight: 'calc(100vh - 64px)' }}>
+            <Sidebar
               quantities={quantities}
               onChange={handleQuantityChange}
               onSave={handleSave}
@@ -92,16 +103,31 @@ export default function App() {
               isSaving={loading}
               status={status}
             />
-
-            <Grid item xs={12} md={9} lg={9.5} sx={{ bgcolor: '#f4f4f4', p: 4, minHeight: '100vh' }}>
-              <Box sx={{ maxWidth: '1400px', margin: '0 auto' }}>
-                <SiteLayoutHeader /> 
-                <Divider sx={{ marginTop: 0, marginBottom: 1, borderColor: '#e2e5e8', borderBottomWidth: 1.5 }} />
+  
+            <Box
+              sx={{
+                flex: 1,
+                minWidth: 0,
+                bgcolor: '#f4f4f4',
+                p: 2,
+                minHeight: 'calc(100vh - 64px)',
+              }}
+            >
+              <Box sx={{ maxWidth: '1400px', mx: 'auto' }}>
+                <SiteLayoutHeader />
+                <Divider
+                  sx={{
+                    marginTop: 0,
+                    marginBottom: 1,
+                    borderColor: '#e2e5e8',
+                    borderBottomWidth: 1.5,
+                  }}
+                />
                 <SiteLayoutInfoCards totals={totals} />
                 <SiteLayout layout={layout} />
               </Box>
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
         </Container>
       </Box>
     </ThemeProvider>

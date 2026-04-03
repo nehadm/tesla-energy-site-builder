@@ -1,8 +1,7 @@
+import cors from 'cors';
 import express from 'express';
 import fs from 'fs';
 import path from 'path';
-import cors from 'cors';
-
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -27,26 +26,52 @@ if (!fs.existsSync(DATA_DIR)) {
 }
 
 app.post('/api/layout', (req, res) => {
-    const config = req.body;
-    fs.writeFile(DATA_FILE, JSON.stringify(config, null, 2), (err) => {
-        if (err) {
-            console.error("Save Error:", err);
-            return res.status(500).json({ error: 'Failed to save configuration' });
+    try {
+        const config = req.body;
+        if (!config || typeof config !== 'object') {
+            console.error('Invalid request body:', config);
+            return res.status(400).json({ error: 'Invalid configuration data' });
         }
-        res.json({ message: 'Session saved successfully' });
-    });
+        fs.writeFile(DATA_FILE, JSON.stringify(config, null, 2), (err) => {
+            if (err) {
+                console.error("File write error:", err);
+                return res.status(500).json({ error: 'Failed to save configuration' });
+            }
+            console.log('Configuration saved successfully');
+            res.json({ message: 'Session saved successfully' });
+        });
+    } catch (err) {
+        console.error('POST /api/layout error:', err);
+        res.status(500).json({ error: 'Server error' });
+    }
 });
 
 app.get('/api/layout', (req, res) => {
-    if (!fs.existsSync(DATA_FILE)) {
-        return res.json({ 
-            quantities: { MEGAPACK_XL: 0, MEGAPACK_2: 0, MEGAPACK: 0, POWERPACK: 0 } 
+    try {
+        if (!fs.existsSync(DATA_FILE)) {
+            console.log('No saved configuration found, returning defaults');
+            return res.json({ 
+                quantities: { MEGAPACK_XL: 0, MEGAPACK_2: 0, MEGAPACK: 0, POWERPACK: 0 } 
+            });
+        }
+        fs.readFile(DATA_FILE, 'utf8', (err, data) => {
+            if (err) {
+                console.error('File read error:', err);
+                return res.status(500).json({ error: 'Failed to load configuration' });
+            }
+            try {
+                const config = JSON.parse(data);
+                console.log('Configuration loaded successfully');
+                res.json(config);
+            } catch (parseErr) {
+                console.error('JSON parse error:', parseErr);
+                res.status(500).json({ error: 'Invalid configuration file' });
+            }
         });
+    } catch (err) {
+        console.error('GET /api/layout error:', err);
+        res.status(500).json({ error: 'Server error' });
     }
-    fs.readFile(DATA_FILE, 'utf8', (err, data) => {
-        if (err) return res.status(500).json({ error: 'Load failed' });
-        res.json(JSON.parse(data));
-    });
 });
 
 app.listen(PORT, '0.0.0.0', () => {
