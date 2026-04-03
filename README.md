@@ -2,6 +2,10 @@
 
 A React-based web app for configuring Tesla battery site layouts. You can add batteries, see the layout in real-time, and it automatically calculates cost, energy capacity, land footprint, and how many transformers you need.
 
+## 🌐 Live Demo
+
+Try it out: [https://tesla-energy-site-builder.onrender.com/](https://tesla-energy-site-builder.onrender.com/)
+
 ## 📋 What it does
 
 - **Device Config**: Pick quantities of 4 battery types (XL, 2, regular, PowerPack)
